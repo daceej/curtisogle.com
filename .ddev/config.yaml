@@ -1,0 +1,40 @@
+name: curtisogle.com
+type: php
+docroot: dist
+php_version: "8.3"
+webserver_type: nginx-fpm
+xdebug_enabled: false
+additional_hostnames: []
+additional_fqdns: []
+use_dns_when_possible: true
+composer_version: "2"
+web_environment: []
+corepack_enable: false
+omit_containers: ["db"]
+disable_upload_dirs_warning: true
+nodejs_version: "auto"
+
+hooks:
+  post-start:
+    - exec: npm install
+    - exec: echo "Building the site..."
+    - exec: npm run build
+    - exec: echo "--------------------------------------------------"
+    - exec: echo "Starting live reload..."    
+    - exec: echo "Live reload avaliable at ${DDEV_PRIMARY_URL}:4321"
+    - exec: echo "--------------------------------------------------"
+    - exec: echo "Standard site avaliable at ${DDEV_PRIMARY_URL}"
+    - exec: echo "Run 'ddev npm run build' to update the standard site."
+    - exec: echo "--------------------------------------------------"
+    
+web_extra_daemons:
+  - name: astro-live-reload
+    command: npm install && npm run dev -- --host
+    directory: /var/www/html
+
+web_extra_exposed_ports:
+    - name: astro-live-reload
+      container_port: 4321
+      http_port: 4322
+      https_port: 4321
+
